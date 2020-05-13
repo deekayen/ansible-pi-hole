@@ -1,0 +1,25 @@
+---
+
+- hosts: pi-hole
+  become: true
+
+  handlers:
+    - name: reboot
+      reboot:
+
+  pre_tasks:
+    - name: Add log2ram deb repo.
+      apt_repository:
+        repo: deb http://packages.azlux.fr/debian/ buster main
+        filename: azlux
+        state: present
+
+    - name: Add log2ram apt key.
+      apt_key:
+        url: https://azlux.fr/repo.gpg.key
+        state: present
+
+    - name: Install log2ram.
+      apt:
+        name: log2ram
+      notify: reboot
