@@ -39,3 +39,9 @@
       notify:
         - enable log2ram
         - reboot
+
+  tasks:
+    - name: Tools I like.
+      apt:
+        name:
+          - net-tools

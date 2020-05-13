@@ -1,2 +1,5 @@
 [pihole]
 192.168.0.96
+
+[pihole:vars]
+ansible_user = ubuntu
