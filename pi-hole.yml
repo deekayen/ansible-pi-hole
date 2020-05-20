@@ -12,6 +12,17 @@
         name: log2ram
         enabled: yes
 
+    - name: setup cloudflared service
+      service:
+        name: cloudflared
+        enabled: yes
+        state: started
+
+    - name: restart cloudflared
+      service:
+        name: cloudflared
+        state: restarted
+
   pre_tasks:
     # Default log2ram holds 40M. First boot Ubuntu took 72M in /var/log/journal.
     - name: Shrink journald logs to fit in default log2ram config.
@@ -45,3 +56,42 @@
       apt:
         name:
           - net-tools
+
+    - name: Install cloudflared.
+      unarchive:
+        src: https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-arm.tgz
+        dest: /usr/local/bin
+        mode: 0755
+        remote_src: yes
+        creates: /usr/local/bin/cloudflared
+
+    - name: Add cloudflared user.
+      user:
+        name: cloudflared
+        shell: /usr/sbin/nologin
+        create_home: no
+        system: yes
+
+    - name: Copy cloudflared config.
+      copy:
+        src: files/etc/cloudflared/config.yml
+        dest: /etc/cloudflared/config.yml
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart cloudflared
+
+    - name: Copy cloudflared defaults.
+      copy:
+        src: files/etc/default/cloudflared
+        dest: /etc/default/cloudflared
+        owner: cloudflared
+        group: cloudflared
+        mode: 0644
+      notify: restart cloudflared
+
+    - name: Create cloudflared service.
+      command: cloudflared service install
+      args:
+        creates: /etc/systemd/system/cloudflared.service
+      notify: setup cloudflared service
