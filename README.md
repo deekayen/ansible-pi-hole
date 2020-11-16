@@ -8,3 +8,23 @@ Basic Pi-hole configuration for my Pi-hole. I shared it with you, even though it
 
 * https://developers.cloudflare.com/argo-tunnel/downloads/
 * https://docs.pi-hole.net/guides/dns-over-https/
+
+## log2ram
+
+https://github.com/azlux/log2ram
+
+```
+SIZE=100M
+USE_RSYNC=false
+MAIL=true
+PATH_DISK="/var/log"
+ZL2R=false
+COMP_ALG=lz4
+LOG_DISK_SIZE=100M
+```
+
+Configure the journal to stay small, otherwise it'll lock-up the system when log2ram runs out of space, then the log2ram service won't start again.
+
+```
+journalctl --vacuum-size=8M
+```
