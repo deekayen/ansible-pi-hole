@@ -7,11 +7,6 @@
     - name: reboot
       reboot:
 
-    - name: enable log2ram
-      service:
-        name: log2ram
-        enabled: yes
-
     - name: setup cloudflared service
       service:
         name: cloudflared
@@ -22,35 +17,6 @@
       service:
         name: cloudflared
         state: restarted
-
-  pre_tasks:
-    # Default log2ram holds 40M. First boot Ubuntu took 72M in /var/log/journal.
-    - name: Shrink journald logs to fit in default log2ram config.
-      lineinfile:
-        path: /etc/systemd/journald.conf
-        regexp: '^#SystemMaxUse='
-        line: SystemMaxUse=10M
-      notify: reboot
-
-    - name: Add log2ram deb key.
-      apt_key:
-        id: 98B824A5FA7D3A10FDB225B7CA548A0A0312D8E6
-        url: https://azlux.fr/repo.gpg.key
-        state: present
-
-    - name: Add log2ram deb repo.
-      apt_repository:
-        repo: deb http://packages.azlux.fr/debian/ buster main
-        filename: azlux
-        state: present
-
-    - name: Install log2ram.
-      apt:
-        name: log2ram
-      notify:
-        - enable log2ram
-        - reboot
-
   tasks:
     - name: Tools I like.
       apt:
