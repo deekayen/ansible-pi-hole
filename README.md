@@ -28,3 +28,10 @@ Configure the journal to stay small, otherwise it'll lock-up the system when log
 ```
 journalctl --vacuum-size=8M
 ```
+## Disable rate limit
+
+Specific rate limit can be defined in /etc/pihole/pihole-FTL.conf configuration file. By default rate limit is set to allow no more than 1000 queries per 60 seconds like `RATE_LIMIT=1000/60`. Fix it with:
+
+```
+RATE_LIMIT=0/0
+```
