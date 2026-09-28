@@ -1,63 +1,64 @@
 ---
 
-- hosts: pihole
+- name: Configure the Pi-hole host.
+  hosts: pihole
   become: true
 
   handlers:
-    - name: reboot
-      reboot:
+    - name: Reboot
+      ansible.builtin.reboot:
 
-    - name: setup cloudflared service
-      service:
+    - name: Setup cloudflared service
+      ansible.builtin.service:
         name: cloudflared
-        enabled: yes
+        enabled: true
         state: started
 
-    - name: restart cloudflared
-      service:
+    - name: Restart cloudflared
+      ansible.builtin.service:
         name: cloudflared
         state: restarted
   tasks:
     - name: Tools I like.
-      apt:
+      ansible.builtin.apt:
         name:
           - net-tools
 
     - name: Install cloudflared.
-      unarchive:
+      ansible.builtin.unarchive:
         src: https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-arm.tgz
         dest: /usr/local/bin
-        mode: 0755
-        remote_src: yes
+        mode: "0755"
+        remote_src: true
         creates: /usr/local/bin/cloudflared
 
     - name: Add cloudflared user.
-      user:
+      ansible.builtin.user:
         name: cloudflared
         shell: /usr/sbin/nologin
-        create_home: no
-        system: yes
+        create_home: false
+        system: true
 
     - name: Copy cloudflared config.
-      copy:
+      ansible.builtin.copy:
         src: files/etc/cloudflared/config.yml
         dest: /etc/cloudflared/config.yml
         owner: root
         group: root
-        mode: 0644
-      notify: restart cloudflared
+        mode: "0644"
+      notify: Restart cloudflared
 
     - name: Copy cloudflared defaults.
-      copy:
+      ansible.builtin.copy:
         src: files/etc/default/cloudflared
         dest: /etc/default/cloudflared
         owner: cloudflared
         group: cloudflared
-        mode: 0644
-      notify: restart cloudflared
+        mode: "0644"
+      notify: Restart cloudflared
 
     - name: Create cloudflared service.
-      command: cloudflared service install
+      ansible.builtin.command: cloudflared service install
       args:
         creates: /etc/systemd/system/cloudflared.service
-      notify: setup cloudflared service
+      notify: Setup cloudflared service
